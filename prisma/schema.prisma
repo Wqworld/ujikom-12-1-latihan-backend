@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+enum Role {
+  KASIR
+  ADMIN
+  OWNER
+  DAPUR
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  nama      String
+  password  String
+  role      Role     @default(KASIR)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  transaksi Transaksi[]
+}
+
+model Kategori {
+  id        Int      @id @default(autoincrement())
+  nama      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  produk    Produk[]
+}
+
+model Produk {
+  id        Int      @id @default(autoincrement())
+  nama      String
+  kategoriId Int
+  kategori  Kategori @relation(fields: [kategoriId], references: [id])
+  harga     Int
+  stok      Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  detail    TransaksiDetail[]
+}
+
+model Diskon {
+  id        Int      @id @default(autoincrement())
+  nama      String
+  persen    Int
+  aktif     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  transaksi Transaksi[]
+}
+
+model Transaksi {
+  id          Int               @id @default(autoincrement())
+  total       Int
+  kasirId     Int
+  diskonId    Int?
+  kasir       User              @relation(fields: [kasirId], references: [id])
+  diskon      Diskon?           @relation(fields: [diskonId], references: [id])
+  item        TransaksiDetail[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+model TransaksiDetail {
+  id          Int       @id @default(autoincrement())
+  transaksiId Int
+  produkId    Int
+  quantitas   Int
+  Transaksi   Transaksi @relation(fields: [transaksiId], references: [id])
+  Produk      Produk    @relation(fields: [produkId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
