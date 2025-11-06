@@ -30,10 +30,10 @@ export const lihatSemuaProduk = async (req, res) => {
   }
 };
 
-export const lihatProudukId = async (req, res) => {
+export const lihatProdukId = async (req, res) => {
   try {
     const { id } = req.params;
-    const produk = await prisma.findUnique({
+    const produk = await prisma.produk.findUnique({
       where: { id: parseInt(id) },
       include: { kategori: true }
     });
@@ -41,7 +41,7 @@ export const lihatProudukId = async (req, res) => {
     if (!produk) return res.status(404).json({ massage: "produk tidak di temukan" });
     res.status(200).json(produk);
   } catch (error) {
-    res.status(500).json({ massage: "Gagal mengambil Prouk" });
+    res.status(500).json({ massage: "Gagal mengambil Produk" });
   }
 };
 
@@ -49,7 +49,6 @@ export const updateProduk = async (req, res) => {
   try {
     const { id } = req.params;
     const {nama, harga, stok, kategoriId } = req.body;
-
     const updated = await prisma.produk.update({
       where : {id: parseInt(id)},
       data: {
@@ -59,9 +58,9 @@ export const updateProduk = async (req, res) => {
         kategoriId: kategoriId
       }
     });
-    res.status(200).json({massage : "data berasil di update"});
+    res.status(200).json({massage : "data berasil di update", data: updated});
   } catch (error) {
-    res.status(500).json({massage: "Gagal menyimpan produk"})
+    res.status(500).json({massage: "Gagal menyimpan produk", error: error.message}); 
   }
 };
 
